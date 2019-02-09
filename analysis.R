@@ -41,9 +41,27 @@ month_plot <- ggplot(data = by_month) +
 
 
 # Format the lat/long variables, filter to 2017
-
-
+evictions_2017 <- evictions %>% 
+  mutate(date = as.Date(File.Date, format="%m/%d/%y")) %>% 
+  filter(format(date, "%Y") == "2017") %>% 
+  separate(Location, c("lat", "long"), ", ") %>% 
+  mutate(
+    lat = as.numeric(gsub("\\(", "", lat)),
+    long = as.numeric(gsub("\\)", "", long))
+  )
 # Create a maptile background
-
+base_plot <- qmplot(
+  data = evictions_2017,
+  x = long,
+  y = lat,
+  geom = "blank",
+  maptype = "toner-background",
+  darken = .7,
+  legend = "topleft"
+)
 
 # Add a layer of points on top of the map tiles
+evictions_plot <- base_plot +
+  geom_point(mapping = aes(x = long, y = lat), color = "red", alpha = .3) +
+  labs(title = "Evictions in San Francisco, 2017") +
+  theme(plot.margin = margin(.3, 0, 0, 0, "cm"))
